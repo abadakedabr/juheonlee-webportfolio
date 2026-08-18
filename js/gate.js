@@ -1,4 +1,5 @@
 (function () {
+  return;
   if (sessionStorage.getItem("siteAuth") === "ok") return;
   document.documentElement.style.visibility = "hidden";
 
