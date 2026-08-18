@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script src="js/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About — Juheon Lee</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="css/style.css?v=20260718">
+<style>
+  .about-wrap { max-width: 780px; margin: 0 auto; padding: 60px var(--gutter) 120px; }
+  .about-wrap h1 { font-family: var(--display); font-weight: 800; font-size: clamp(28px,5vw,44px); color: var(--ink); margin: 0 0 20px; }
+  .about-wrap p { font-size: 15px; line-height: 1.75; color: #444; max-width: 62ch; margin-bottom: 18px; }
+  .about-section { margin-top: 50px; padding-top: 30px; border-top: 1px solid rgba(125,83,255,0.2); }
+  .about-section h2 { font-size: 11px; font-weight: 700; letter-spacing: 0.12em; color: var(--blue); margin: 0 0 20px; }
+  .about-row { display: grid; grid-template-columns: 130px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 14px; color: #333; }
+  .about-row .yr { font-size: 12px; color: #999; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <a href="index.html" class="logo-block">
+    <div class="logo">JUHEON <b>LEE</b></div>
+    <div class="role">sdleesy19@gmail.com</div>
+  </a>
+  <nav class="site-nav">
+    <a href="index.html">WORK</a>
+    <a href="about.html">RESUME</a>
+  </nav>
+</header>
+
+<section class="about-wrap">
+  <h1>Juheon Lee</h1>
+  <p><b>Form follows imagination.</b> From imagination to reality — creative thinking shapes the future of mobility.</p>
+
+  <div class="about-section">
+    <h2>EXPERIENCE</h2>
+    <div class="about-row"><span class="yr">25/03—25/11</span><span><b>General Motors TCK</b> — Thesis Sponsorship Project<br>Bachelor thesis project, GM TCK sponsorship project — proposal for Chevrolet's vision sports coupe.</span></div>
+    <div class="about-row"><span class="yr">23/03—24/06</span><span><b>Hyundai</b> — Mobility Sponsorship Project<br>Drive system and chassis-change design based on future people's life research, and new mobility and product design proposals through mobility exploration.</span></div>
+    <div class="about-row"><span class="yr">23/03—24/08</span><span><b>KG Mobility</b> — Exterior Sponsorship Project<br>2030 KGM camper van exterior design proposal for 2030 generations.</span></div>
+    <div class="about-row"><span class="yr">22/08—22/12</span><span><b>Cevo Mobility</b> — Interior Sponsorship Project<br>2030 future mobility interior based on future lifestyles research, and mobility interior proposals of Cevo Mobility.</span></div>
+  </div>
+
+  <div class="about-section">
+    <h2>EDUCATION</h2>
+    <div class="about-row"><span class="yr">19/03—26/06</span><span><b>Kookmin University</b> — Bachelor of Automotive & Transportation Design, College of Design<br>Experienced in overall mobility and automotive design including exterior/interior design, 3D & clay modeling, and CMF design practices. 9th Student Council President.</span></div>
+  </div>
+
+  <div class="about-section">
+    <h2>SKILLS</h2>
+    <div class="about-row"><span class="yr">Digital 3D Modeling</span><span>Autodesk Alias (NURBS), Blender</span></div>
+    <div class="about-row"><span class="yr">Visualization / Animation</span><span>Keyshot, Blender, Autodesk VRED, Adobe Photoshop, Illustrator, After Effects</span></div>
+    <div class="about-row"><span class="yr">Additional Expertise</span><span>AI Tools (Liblib, Vizcom, etc.), Hand Sketch, 3D Printing Prototyping, Clay Modeling</span></div>
+  </div>
+
+  <div class="about-section">
+    <h2>LANGUAGES</h2>
+    <div class="about-row"><span class="yr">Languages</span><span>English, Korean</span></div>
+  </div>
+
+  <div class="about-section" id="contact">
+    <h2>CONTACT</h2>
+    <div class="about-row"><span class="yr">Email</span><span>sdleesy19@gmail.com</span></div>
+    <div class="about-row"><span class="yr">Phone</span><span>+82 10-3900-7388</span></div>
+    <div class="about-row"><span class="yr">Web Portfolio</span><span>sdleesy197905.myportfolio.com</span></div>
+  </div>
+</section>
+
+<footer class="site-footer">© 2026 Juheon Lee</footer>
+
+<script>
+const aboutParams = new URLSearchParams(window.location.search);
+
+function initAboutEditMode() {
+  const toggle = document.createElement("button");
+  toggle.id = "edit-mode-toggle";
+  toggle.textContent = "🔧 편집 모드";
+  toggle.style.cssText = `
+    position: fixed; bottom: 20px; right: 20px; z-index: 999;
+    background: #7D53FF; color: #fff; border: none; border-radius: 999px;
+    padding: 12px 20px; font-size: 13px; font-weight: 600; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3); font-family: inherit;
+  `;
+  document.body.appendChild(toggle);
+
+  const genBtn = document.createElement("button");
+  genBtn.textContent = "코드 생성";
+  genBtn.style.cssText = `
+    position: fixed; bottom: 70px; right: 20px; z-index: 999; display: none;
+    background: #DFFF3C; color: #14151A; border: none; border-radius: 999px;
+    padding: 10px 18px; font-size: 12px; font-weight: 700; cursor: pointer;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.3); font-family: inherit;
+  `;
+  document.body.appendChild(genBtn);
+
+  const output = document.createElement("textarea");
+  output.readOnly = true;
+  output.style.cssText = `
+    position: fixed; bottom: 115px; right: 20px; z-index: 999; display: none;
+    width: 380px; height: 300px; background: #17181C; color: #A8FFB0;
+    border: 1px solid #33343C; border-radius: 10px; padding: 12px;
+    font-family: ui-monospace, monospace; font-size: 10.5px; line-height: 1.5;
+  `;
+  document.body.appendChild(output);
+
+  let editMode = false;
+  const editableSelectors = [
+    ".logo", ".role", ".site-nav a",
+    ".about-wrap h1", ".about-wrap p", ".about-section h2",
+    ".about-row span"
+  ];
+
+  toggle.addEventListener("click", () => {
+    editMode = !editMode;
+    toggle.textContent = editMode ? "✕ 편집 모드 끄기" : "🔧 편집 모드";
+    genBtn.style.display = editMode ? "block" : "none";
+    if (!editMode) output.style.display = "none";
+
+    document.querySelectorAll(editableSelectors.join(",")).forEach(el => {
+      el.contentEditable = editMode;
+      el.style.outline = editMode ? "1px dashed #7D53FF" : "none";
+      el.style.cursor = editMode ? "text" : "default";
+      if (editMode) {
+        el.onclick = (e) => e.preventDefault();
+      } else {
+        el.onclick = null;
+      }
+    });
+  });
+
+  genBtn.addEventListener("click", () => {
+    const headerCode = document.querySelector("header.site-header").outerHTML;
+    const aboutCode = document.querySelector(".about-wrap").outerHTML;
+    output.value =
+`이 페이지(about.html)에서 <header ...>...</header> 부분 전체를 아래 코드로 교체:
+
+${headerCode}
+
+
+이 페이지에서 <section class="about-wrap">...</section> 부분 전체를 아래 코드로 교체:
+
+${aboutCode}`;
+    output.style.display = "block";
+    output.select();
+  });
+}
+
+let aboutEditModeInitialized = false;
+function ensureAboutEditModeInit() {
+  if (!aboutEditModeInitialized) {
+    initAboutEditMode();
+    aboutEditModeInitialized = true;
+  }
+}
+
+if (aboutParams.get("edit") === "juheon") {
+  ensureAboutEditModeInit();
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.shiftKey && e.altKey && (e.key === "a" || e.key === "A")) {
+    const pw = prompt("편집 모드 비밀번호를 입력하세요:");
+    if (pw === "0000") {
+      ensureAboutEditModeInit();
+      document.getElementById("edit-mode-toggle").click();
+    } else if (pw !== null) {
+      alert("비밀번호가 틀렸습니다.");
+    }
+  }
+});
+</script>
+
+</body>
+</html>
