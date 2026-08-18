@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script src="js/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juheon Lee — Automotive Design Portfolio</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="css/style.css?v=20260718">
+</head>
+<body>
+
+<section class="hero">
+  <video class="hero-video" src="https://res.cloudinary.com/jurxftky/video/upload/q_auto,f_auto/v1783670400/nhngie9fgkivnjsshtgu.mp4" autoplay muted loop playsinline preload="auto"></video>
+  <div class="hero-scrim"></div>
+
+  <header class="site-header hero-header">
+    <a href="index.html" class="logo-block">
+      <div class="logo">JUHEON <b>LEE</b></div>
+      <div class="role">sdleesy19@gmail.com</div>
+    </a>
+    <nav class="site-nav">
+      <a href="index.html" class="active">WORK</a>
+      <a href="about.html">RESUME</a>
+    </nav>
+  </header>
+
+  <div class="hero-content"></div>
+
+  <div class="scroll-hint hero-scroll">
+    Scroll down to see projects
+    <div class="arrow">▼</div>
+  </div>
+</section>
+
+<main id="project-list"></main>
+
+<footer class="site-footer">© 2026 Juheon Lee</footer>
+
+<script>
+  // 모바일 브라우저에서 autoplay가 조용히 막히는 경우를 대비한 재시도 로직
+  const heroVideoEl = document.querySelector(".hero-video");
+  if (heroVideoEl) {
+    const tryPlay = () => heroVideoEl.play().catch(() => {});
+    tryPlay();
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) tryPlay();
+    });
+    heroVideoEl.addEventListener("pause", () => {
+      if (!document.hidden) tryPlay();
+    });
+  }
+</script>
+<script src="js/data.js?v=20260711"></script>
+<script src="js/main.js?v=20260720"></script>
+</body>
+</html>
