@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<script src="js/gate.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upload — Juheon Lee (비공개)</title>
+<link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css">
+<link rel="stylesheet" href="css/style.css?v=20260710">
+<style>
+  body { background: #14151A; }
+  .upload-wrap { max-width: 760px; margin: 0 auto; padding: 60px var(--gutter) 120px; color: #EDEDEA; }
+  .upload-wrap h1 { font-family: var(--display); font-weight: 800; font-size: 28px; margin: 0 0 6px; }
+  .upload-wrap .sub { color: #9A9A94; font-size: 13px; margin-bottom: 40px; }
+
+  .config-box { background: #1E1F26; border: 1px solid #33343C; border-radius: 10px; padding: 20px; margin-bottom: 40px; }
+  .config-box label { display: block; font-size: 12px; color: #9A9A94; margin: 12px 0 6px; }
+  .config-box input {
+    width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #3A3B44;
+    background: #101116; color: #EDEDEA; font-size: 14px; font-family: var(--body);
+  }
+  .config-box .hint { font-size: 11px; color: #6E6E68; margin-top: 6px; }
+  .config-box .hint a { color: #7D53FF; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .field-row.full { grid-template-columns: 1fr; }
+  .field-row label { display: block; font-size: 12px; color: #9A9A94; margin-bottom: 6px; }
+  .field-row input, .field-row textarea {
+    width: 100%; padding: 10px 12px; border-radius: 6px; border: 1px solid #3A3B44;
+    background: #1E1F26; color: #EDEDEA; font-size: 14px; font-family: var(--body);
+  }
+
+  .dropzone {
+    border: 2px dashed #44454E; border-radius: 12px; padding: 50px 20px;
+    text-align: center; color: #9A9A94; cursor: pointer; transition: border-color 0.2s ease, background 0.2s ease;
+    margin-bottom: 24px;
+  }
+  .dropzone.drag-over { border-color: var(--blue); background: rgba(125,83,255,0.08); }
+  .dropzone input { display: none; }
+
+  .thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px,1fr)); gap: 10px; margin-bottom: 24px; }
+  .thumb { position: relative; aspect-ratio: 1; border-radius: 8px; overflow: hidden; background: #1E1F26; }
+  .thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; }
+  .thumb .status { position: absolute; inset: 0; display:flex; align-items:center; justify-content:center; background: rgba(0,0,0,0.55); font-size: 11px; color: #fff; text-align: center; padding: 4px; }
+  .thumb.done .status { display: none; }
+  .thumb .cover-badge {
+    position: absolute; top: 4px; left: 4px; background: var(--blue); color: #fff;
+    font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: 600;
+  }
+  .thumb .type-badge {
+    position: absolute; bottom: 4px; right: 4px; background: rgba(0,0,0,0.6); color: #fff;
+    font-size: 8px; padding: 2px 5px; border-radius: 4px;
+  }
+
+  button.btn {
+    background: var(--blue); color: #fff; border: none; border-radius: 8px;
+    padding: 12px 22px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--body);
+  }
+  button.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  button.btn.ghost { background: transparent; border: 1px solid #44454E; color: #EDEDEA; }
+
+  .output-box { margin-top: 30px; }
+  .output-box textarea {
+    width: 100%; min-height: 220px; padding: 16px; border-radius: 8px; border: 1px solid #33343C;
+    background: #101116; color: #A8FFB0; font-family: ui-monospace, monospace; font-size: 12.5px;
+    line-height: 1.6; resize: vertical;
+  }
+  .step { color: #6E6E68; font-size: 12px; margin: 8px 0 20px; }
+  .step b { color: #EDEDEA; }
+
+  .swap-row {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    background: #1E1F26; border: 1px solid #33343C; border-radius: 8px; padding: 8px;
+  }
+  .swap-row img, .swap-row video { width: 46px; height: 46px; object-fit: cover; border-radius: 6px; flex-shrink: 0; }
+  .swap-row input {
+    flex: 1; background: #101116; border: 1px solid #3A3B44; border-radius: 6px;
+    padding: 8px 10px; color: #A8FFB0; font-family: ui-monospace, monospace; font-size: 11px;
+  }
+  .swap-row button {
+    background: transparent; border: 1px solid #44454E; color: #EDEDEA; border-radius: 6px;
+    padding: 8px 12px; font-size: 12px; cursor: pointer; flex-shrink: 0;
+  }
+  .swap-row .swap-status { font-size: 10px; color: #9A9A94; flex-shrink: 0; width: 60px; }
+</style>
+</head>
+<body>
+
+<div class="upload-wrap">
+  <h1>이미지/영상 업로드</h1>
+  <div class="sub">여기서 올린 사진·영상은 Cloudinary에 저장되고, <b>자동으로 압축/최적화된 주소</b>가 생성됩니다 (q_auto,f_auto 적용). data.js에 붙여넣을 코드도 자동 생성됩니다. 이 페이지 주소는 아무한테도 공유하지 마세요.</div>
+
+  <div class="config-box">
+    <label>Cloudinary Cloud Name</label>
+    <input id="cloudName" placeholder="예: jurxftky" />
+    <label>Upload Preset (Unsigned)</label>
+    <input id="uploadPreset" placeholder="예: naxpzrc7" />
+    <div class="hint">Cloudinary 콘솔 → Settings → Upload → Upload presets에서 Unsigned로 된 preset 이름. 최초 1회만 입력하면 브라우저에 저장됩니다.<br>무료 플랜 용량 제한: 이미지 10MB / 영상 100MB. 그 이상은 미리 압축해서 올려야 합니다.</div>
+  </div>
+
+  <div class="swap-section">
+    <h2 style="font-size:15px; margin:0 0 6px;">🔄 기존 이미지/영상 교체 (URL만 빠르게 받기)</h2>
+    <div class="sub" style="margin-bottom:16px;">파일 하나(또는 여러 개)만 올려서 최적화된 URL만 받고, data.js에서 바꾸고 싶은 기존 URL을 이걸로 직접 바꿔치기 하세요. 프로젝트 정보 입력 필요 없음.</div>
+    <div class="dropzone" id="swapDropzone" style="margin-bottom:16px;">
+      교체할 사진/영상을 여기로 끌어다 놓거나 클릭해서 선택하세요
+      <input type="file" id="swapFileInput" multiple accept="image/*,video/*" />
+    </div>
+    <div id="swapResults"></div>
+  </div>
+
+  <hr style="border:none; border-top:1px solid #2A2B31; margin:40px 0;">
+
+  <h2 style="font-size:15px; margin:0 0 20px;">➕ 새 프로젝트 통째로 추가</h2>
+
+  <div class="step">1. 프로젝트 정보를 입력하고 → 2. 사진/영상을 끌어다 놓으면 → 3. 아래 코드가 자동 생성됩니다. <b>그 코드를 복사해서 js/data.js에 붙여넣으면 끝.</b></div>
+
+  <div class="field-row">
+    <div>
+      <label>프로젝트명 (Name)</label>
+      <input id="projName" placeholder="예: BMW Z-E" />
+    </div>
+    <div>
+      <label>프로젝트 ID (영문 소문자, 자동생성됨)</label>
+      <input id="projId" placeholder="예: bmw-z-e" />
+    </div>
+  </div>
+  <div class="field-row full">
+    <label>태그라인 (한 줄 설명)</label>
+    <input id="projTagline" placeholder="예: BMW Z on electrified steroid / WIP" />
+  </div>
+
+  <div class="dropzone" id="dropzone">
+    사진/영상을 여기로 끌어다 놓거나 클릭해서 선택하세요 (여러 개 가능, 첫 번째 이미지가 커버로 사용됨)
+    <input type="file" id="fileInput" multiple accept="image/*,video/*" />
+  </div>
+
+  <div class="thumbs" id="thumbs"></div>
+
+  <button class="btn" id="generateBtn" disabled>코드 생성</button>
+
+  <div class="output-box" id="outputBox" style="display:none;">
+    <label style="display:block; font-size:12px; color:#9A9A94; margin-bottom:8px;">이 코드를 복사해서 js/data.js의 PROJECTS 배열 안에 붙여넣으세요:</label>
+    <textarea id="outputCode" readonly></textarea>
+    <button class="btn ghost" id="copyBtn" style="margin-top:10px;">복사하기</button>
+  </div>
+</div>
+
+<script>
+const cloudNameInput = document.getElementById("cloudName");
+const presetInput = document.getElementById("uploadPreset");
+cloudNameInput.value = localStorage.getItem("cld_cloud_name") || "";
+presetInput.value = localStorage.getItem("cld_preset") || "";
+cloudNameInput.addEventListener("change", () => localStorage.setItem("cld_cloud_name", cloudNameInput.value.trim()));
+presetInput.addEventListener("change", () => localStorage.setItem("cld_preset", presetInput.value.trim()));
+
+// secure_url에 자동 최적화 파라미터(q_auto,f_auto) 삽입
+function optimizeUrl(secureUrl) {
+  return secureUrl.replace("/upload/", "/upload/q_auto,f_auto/");
+}
+
+function cloudinaryUpload(file, cloudName, preset, onResult) {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", preset);
+
+  fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+    method: "POST",
+    body: formData
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.secure_url) {
+        onResult(null, optimizeUrl(data.secure_url), data.resource_type);
+      } else {
+        onResult(data?.error?.message || "알 수 없는 오류");
+      }
+    })
+    .catch((err) => onResult("네트워크 오류: " + err.message));
+}
+
+// ===== 이미지/영상 교체 (URL만 받기) =====
+const swapDropzone = document.getElementById("swapDropzone");
+const swapFileInput = document.getElementById("swapFileInput");
+const swapResults = document.getElementById("swapResults");
+
+swapDropzone.addEventListener("click", () => swapFileInput.click());
+swapDropzone.addEventListener("dragover", e => { e.preventDefault(); swapDropzone.classList.add("drag-over"); });
+swapDropzone.addEventListener("dragleave", () => swapDropzone.classList.remove("drag-over"));
+swapDropzone.addEventListener("drop", e => {
+  e.preventDefault();
+  swapDropzone.classList.remove("drag-over");
+  handleSwapFiles(e.dataTransfer.files);
+});
+swapFileInput.addEventListener("change", () => handleSwapFiles(swapFileInput.files));
+
+function getConfig() {
+  const cloudName = cloudNameInput.value.trim();
+  const preset = presetInput.value.trim();
+  if (!cloudName || !preset) {
+    alert("먼저 위에 Cloud Name과 Upload Preset을 입력해주세요.");
+    return null;
+  }
+  return { cloudName, preset };
+}
+
+function handleSwapFiles(fileList) {
+  const cfg = getConfig();
+  if (!cfg) return;
+  [...fileList].forEach(file => uploadSwapFile(file, cfg));
+}
+
+function uploadSwapFile(file, cfg) {
+  const reader = new FileReader();
+  const rowId = "s" + Math.random().toString(36).slice(2);
+  const isVideo = file.type.startsWith("video/");
+
+  reader.onload = () => {
+    const row = document.createElement("div");
+    row.className = "swap-row";
+    row.id = rowId;
+    row.innerHTML = `
+      ${isVideo ? `<video src="${reader.result}" muted></video>` : `<img src="${reader.result}">`}
+      <input type="text" value="업로드 중..." readonly>
+      <span class="swap-status">⏳</span>
+    `;
+    swapResults.prepend(row);
+  };
+  reader.readAsDataURL(file);
+
+  cloudinaryUpload(file, cfg.cloudName, cfg.preset, (err, url) => {
+    const row = document.getElementById(rowId);
+    const input = row.querySelector("input");
+    const status = row.querySelector(".swap-status");
+    if (err) {
+      input.value = err;
+      status.textContent = "❌";
+    } else {
+      input.value = url;
+      status.innerHTML = `<button onclick="copySwapUrl('${rowId}')">복사</button>`;
+    }
+  });
+}
+
+function copySwapUrl(rowId) {
+  const input = document.getElementById(rowId).querySelector("input");
+  input.select();
+  document.execCommand("copy");
+  const status = document.getElementById(rowId).querySelector(".swap-status");
+  status.innerHTML = "복사됨!";
+  setTimeout(() => { status.innerHTML = `<button onclick="copySwapUrl('${rowId}')">복사</button>`; }, 1500);
+}
+
+const projNameEl = document.getElementById("projName");
+const projIdEl = document.getElementById("projId");
+projNameEl.addEventListener("input", () => {
+  projIdEl.value = projNameEl.value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-");
+});
+
+const dropzone = document.getElementById("dropzone");
+const fileInput = document.getElementById("fileInput");
+const thumbsEl = document.getElementById("thumbs");
+const generateBtn = document.getElementById("generateBtn");
+
+let uploaded = []; // { url, fileName, resourceType }
+
+dropzone.addEventListener("click", () => fileInput.click());
+dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("drag-over"); });
+dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag-over"));
+dropzone.addEventListener("drop", e => {
+  e.preventDefault();
+  dropzone.classList.remove("drag-over");
+  handleFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener("change", () => handleFiles(fileInput.files));
+
+function handleFiles(fileList) {
+  const cfg = getConfig();
+  if (!cfg) return;
+  [...fileList].forEach(file => uploadFile(file, cfg));
+}
+
+function uploadFile(file, cfg) {
+  const reader = new FileReader();
+  const thumbId = "t" + Math.random().toString(36).slice(2);
+  const isVideo = file.type.startsWith("video/");
+
+  reader.onload = () => {
+    const thumb = document.createElement("div");
+    thumb.className = "thumb";
+    thumb.id = thumbId;
+    thumb.innerHTML = `${isVideo ? `<video src="${reader.result}" muted></video>` : `<img src="${reader.result}">`}<div class="status">업로드 중...</div>`;
+    thumbsEl.appendChild(thumb);
+  };
+  reader.readAsDataURL(file);
+
+  cloudinaryUpload(file, cfg.cloudName, cfg.preset, (err, url, resourceType) => {
+    const thumb = document.getElementById(thumbId);
+    if (err) {
+      thumb.querySelector(".status").textContent = err;
+      thumb.querySelector(".status").style.fontSize = "9px";
+    } else {
+      uploaded.push({ url, fileName: file.name, resourceType });
+      thumb.classList.add("done");
+      const typeBadge = document.createElement("div");
+      typeBadge.className = "type-badge";
+      typeBadge.textContent = resourceType === "video" ? "VIDEO" : "IMG";
+      thumb.appendChild(typeBadge);
+      if (uploaded.length === 1) {
+        const badge = document.createElement("div");
+        badge.className = "cover-badge";
+        badge.textContent = "COVER";
+        thumb.appendChild(badge);
+      }
+      generateBtn.disabled = uploaded.length === 0;
+    }
+  });
+}
+
+document.getElementById("generateBtn").addEventListener("click", () => {
+  const name = projNameEl.value.trim() || "Untitled";
+  const id = projIdEl.value.trim() || "untitled";
+  const tagline = document.getElementById("projTagline").value.trim();
+  // 커버는 첫 번째 "이미지"를 우선 사용 (영상이 첫 파일이면 그 다음 이미지를 커버로)
+  const firstImage = uploaded.find(u => u.resourceType !== "video") || uploaded[0];
+  const cover = firstImage?.url || "";
+  const allUrls = uploaded.map(u => u.url);
+
+  const code = `{
+  id: "${id}",
+  name: "${name}",
+  tagline: "${tagline}",
+  cover: "${cover}",
+  images: [${allUrls.map(u => `\n    "${u}"`).join(",")}\n  ]
+},`;
+
+  document.getElementById("outputCode").value = code;
+  document.getElementById("outputBox").style.display = "block";
+});
+
+document.getElementById("copyBtn").addEventListener("click", () => {
+  const ta = document.getElementById("outputCode");
+  ta.select();
+  document.execCommand("copy");
+  const btn = document.getElementById("copyBtn");
+  const original = btn.textContent;
+  btn.textContent = "복사됨!";
+  setTimeout(() => (btn.textContent = original), 1500);
+});
+</script>
+
+</body>
+</html>
