@@ -53,6 +53,57 @@ const revealObserver = new IntersectionObserver((entries) => {
 
 document.querySelectorAll(".detail-img-frame").forEach(el => revealObserver.observe(el));
 
+// ===== 라이트박스: 이미지 클릭하면 확대 + 좌우 넘기기 =====
+(function initLightbox() {
+  const frames = [...document.querySelectorAll("#detail-images .detail-img-frame img")];
+  if (!frames.length) return;
+
+  const overlay = document.createElement("div");
+  overlay.id = "lightbox-overlay";
+  overlay.innerHTML = `
+    <button class="lb-close" aria-label="닫기">✕</button>
+    <button class="lb-prev" aria-label="이전">‹</button>
+    <img class="lb-img" src="" alt="">
+    <button class="lb-next" aria-label="다음">›</button>
+  `;
+  document.body.appendChild(overlay);
+
+  const lbImg = overlay.querySelector(".lb-img");
+  let current = 0;
+
+  function open(idx) {
+    current = idx;
+    lbImg.src = frames[current].src;
+    overlay.classList.add("active");
+    document.body.style.overflow = "hidden";
+  }
+  function close() {
+    overlay.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+  function show(delta) {
+    current = (current + delta + frames.length) % frames.length;
+    lbImg.src = frames[current].src;
+  }
+
+  frames.forEach((img, idx) => {
+    img.style.cursor = "zoom-in";
+    img.addEventListener("click", () => open(idx));
+  });
+
+  overlay.querySelector(".lb-close").addEventListener("click", close);
+  overlay.querySelector(".lb-prev").addEventListener("click", () => show(-1));
+  overlay.querySelector(".lb-next").addEventListener("click", () => show(1));
+  overlay.addEventListener("click", (e) => { if (e.target === overlay) close(); });
+
+  document.addEventListener("keydown", (e) => {
+    if (!overlay.classList.contains("active")) return;
+    if (e.key === "Escape") close();
+    if (e.key === "ArrowLeft") show(-1);
+    if (e.key === "ArrowRight") show(1);
+  });
+})();
+
 // ===== 편집 모드: 이미지 교체 + 텍스트/폰트 크기 편집 =====
 const changes = {}; // { key: value } — key: "image-0", "title", "tagline", "titleFontSize"
 
